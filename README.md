@@ -16,7 +16,7 @@ free
 Processos e porcentagens de uso de cpu e memoria
 ps aux
 
-PartiçÕes
+Partições
 cat /proc/partitions
 
 Informações do sistema operacional
