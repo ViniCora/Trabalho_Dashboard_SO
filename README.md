@@ -1,3 +1,14 @@
+### Como Rodar
+```
+python3 main.py
+```
+
+###Libs utilizadas
+*is mathplotlib 
+
+
+
+
 ### Comandos
 ```
 Informações detalhadas sobre todos os cpu
