@@ -55,22 +55,43 @@ class BuscaDados:
 
     def buscaInformacoesCPU(self):
         self.informacoesCPU = subprocess.run(['cat', '/proc/cpuinfo'], stdout=subprocess.PIPE)
+        cpuInfos = text=self.informacoesCPU.stdout
+        cpuInfos.splitlines()
+
 
     def buscaInfoMemoria(self):
         self.memoriaResumo = subprocess.run(['free'], stdout=subprocess.PIPE)
+        memoriaInfos = text=self.memoriaResumo.stdout
+        memoriaInfos.split()
+
+        mtotal = int(memoriaInfos[7].decode("utf-8"))
+        mUsada = int(memoriaInfos[8].decode("utf-8"))
+        mLivre = int(memoriaInfos[9].decode("utf-8"))
+        mCompartilhada = int(memoriaInfos[10].decode("utf-8"))
+        mBuff = int(memoriaInfos[11].decode("utf-8"))
+        mDisponivel = int(memoriaInfos[12].decode("utf-8"))
+
         self.infoMemoria = subprocess.run(['cat', '/proc/meminfo'], stdout=subprocess.PIPE)
+        mDetalhada = text=self.infoMemoria.stdout
 
     def buscaQuantidadeCPU(self):
         self.quantidadeCPU = subprocess.run(['nproc'], stdout = subprocess.PIPE)
+        cpus = self.quantidadeCPU.stdout
 
     def buscaInfoHardware(self):
         self.infoHardware = subprocess.run(['lscpu'], stdout = subprocess.PIPE)
+        hardwareInfo = text=self.infoHardware.stdout
+        hardwareInfo.splitlines()
 
     def buscaProcessos(self):
         self.processos = subprocess.run(['ps', 'aux'], stdout = subprocess.PIPE)
+        processosInfos = text=self.processos.stdout
+        processosInfos.splitlines()
 
     def buscaParticoes(self):
         self.particoes = subprocess.run(['cat', '/proc/partitions'], stdout = subprocess.PIPE)
+        particoesInfos = text=self.particoes.stdout
+        particoesInfos.splitlines()
 
     def buscaInfoSO(self):
         self.infoSO = subprocess.run(["uname", '-a'], stdout=subprocess.PIPE)
@@ -124,7 +145,6 @@ class DashboardApp:
             widget.destroy()
         table = ttk.Treeview(self.frame4_1, columns=(1, 2), show="headings", height=10)
         table.pack()
-
         table.heading(1, text="Tipo")
         table.heading(2, text="Valor usado/disponivel (kb)")
         table.insert('', tk.END, values=['Memoria Total', 2849964])
