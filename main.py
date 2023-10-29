@@ -5,6 +5,7 @@ import threading
 import subprocess
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
+import re
 
 class DashboardController:
     def __init__(self):
@@ -62,36 +63,37 @@ class BuscaDados:
     def buscaInfoMemoria(self):
         self.memoriaResumo = subprocess.run(['free'], stdout=subprocess.PIPE)
         memoriaInfos = text=self.memoriaResumo.stdout
-        memoriaInfos.split()
+        segunda_linha = memoriaInfos.split("\n")[1]
+        numbers = re.findall(r"\d+", segunda_linha)
 
-        mtotal = int(memoriaInfos[7].decode("utf-8"))
-        mUsada = int(memoriaInfos[8].decode("utf-8"))
-        mLivre = int(memoriaInfos[9].decode("utf-8"))
-        mCompartilhada = int(memoriaInfos[10].decode("utf-8"))
-        mBuff = int(memoriaInfos[11].decode("utf-8"))
-        mDisponivel = int(memoriaInfos[12].decode("utf-8"))
+        mtotal = numbers[1]
+        mUsada = numbers[2]
+        mLivre = numbers[3]
+        mCompartilhada = numbers[4]
+        mBuff = numbers[5]
+        mDisponivel = numbers[6]
 
         self.infoMemoria = subprocess.run(['cat', '/proc/meminfo'], stdout=subprocess.PIPE)
         mDetalhada = text=self.infoMemoria.stdout
 
     def buscaQuantidadeCPU(self):
-        self.quantidadeCPU = subprocess.run(['nproc'], stdout = subprocess.PIPE)
-        cpus = self.quantidadeCPU.stdout
+        cpu = subprocess.run(['nproc'], stdout = subprocess.PIPE)
+        self.quantidadeCPU = cpu.stdout
 
     def buscaInfoHardware(self):
-        self.infoHardware = subprocess.run(['lscpu'], stdout = subprocess.PIPE)
-        hardwareInfo = text=self.infoHardware.stdout
-        hardwareInfo.splitlines()
+        hardwareInfo = subprocess.run(['lscpu'], stdout = subprocess.PIPE)
+        hardwareInfoText = text=hardwareInfo
+        self.infoHardware = hardwareInfoText.splitlines()
 
     def buscaProcessos(self):
-        self.processos = subprocess.run(['ps', 'aux'], stdout = subprocess.PIPE)
-        processosInfos = text=self.processos.stdout
-        processosInfos.splitlines()
+        processosInfos = subprocess.run(['ps', 'aux'], stdout = subprocess.PIPE)
+        processosInfosText = text=processosInfos
+        self.processos = processosInfosText.splitlines()
 
     def buscaParticoes(self):
-        self.particoes = subprocess.run(['cat', '/proc/partitions'], stdout = subprocess.PIPE)
-        particoesInfos = text=self.particoes.stdout
-        particoesInfos.splitlines()
+        particoesInfo = subprocess.run(['cat', '/proc/partitions'], stdout = subprocess.PIPE)
+        particoesInfosText = text=particoesInfo
+        self.particoes = particoesInfosText.splitlines()
 
     def buscaInfoSO(self):
         self.infoSO = subprocess.run(["uname", '-a'], stdout=subprocess.PIPE)
@@ -156,7 +158,6 @@ class DashboardApp:
 
 
     def attInformacoes(self, dados):
-        print(dados.infoSO)
         self.attGraficoMemoria(dados)
         self.attGraficoUsoMemoriaProcessos(dados)
         self.attTabelaMemoria(dados)
