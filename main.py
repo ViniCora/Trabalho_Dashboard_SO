@@ -123,7 +123,7 @@ class DashboardApp:
         self.frame2 = tk.Listbox(dashboard, width=960, height=530, bg='#eff5f6')
         nb.add(self.frame2, text="Info. CPU")
 
-        self.frame3 = Frame(dashboard, width=960, height=530, bg='#eff5f6')
+        self.frame3 = tk.Listbox(dashboard, width=960, height=530, bg='#eff5f6')
         nb.add(self.frame3, text="Info. Hardware")
 
         self.frame4 = Frame(dashboard, width=960, height=530, bg='#eff5f6')
@@ -144,7 +144,7 @@ class DashboardApp:
         self.frame5.config(yscrollcommand=scroll.set)
         scroll.config(command= self.frame5.yview)
 
-        self.frame6 = Frame(dashboard, width=960, height=530, bg='#eff5f6')
+        self.frame6 = tk.Listbox(dashboard, width=960, height=530, bg='#eff5f6')
         nb.add(self.frame6, text="Info. partições")
 
     def attTabelaMemoria(self, dados):
@@ -195,17 +195,21 @@ class DashboardApp:
         for widget in self.frame3.winfo_children():
             widget.destroy()
         labelEXP = ttk.Label(self.frame3, text="Informações sobre o Hardware:")
-        infoHardwareLabel = ttk.Label(self.frame3, text=dados.infoHardware)
+        i = 0
+        for linha in dados.infoHardware:
+            self.frame3.insert(i, linha)
+            i += 1
         labelEXP.pack()
-        infoHardwareLabel.pack()
 
     def attInfoParticoes(self, dados):
         for widget in self.frame6.winfo_children():
             widget.destroy()
         labelEXP = ttk.Label(self.frame6, text="Informações sobre as Partições:")
-        infoParticoesLabel = ttk.Label(self.frame6, text=dados.particoes)
+        i = 0
+        for linha in dados.particoes:
+            self.frame6.insert(i, linha)
+            i += 1
         labelEXP.grid()
-        infoParticoesLabel.grid()
 
     def attInfoSO(self, dados):
         for widget in self.frame1.winfo_children():
