@@ -186,7 +186,7 @@ class DashboardApp:
             widget.destroy()
         labelEXP = ttk.Label(self.frame2, text="Informações sobre a CPU:")
         i = 0
-        for linha in dados.processos:
+        for linha in dados.informacoesCPU:
             self.frame2.insert(i, linha)
             i += 1
         labelEXP.pack()
@@ -204,16 +204,16 @@ class DashboardApp:
             widget.destroy()
         labelEXP = ttk.Label(self.frame6, text="Informações sobre as Partições:")
         infoParticoesLabel = ttk.Label(self.frame6, text=dados.particoes)
-        labelEXP.pack()
-        infoParticoesLabel.pack()
+        labelEXP.grid()
+        infoParticoesLabel.grid()
 
     def attInfoSO(self, dados):
         for widget in self.frame1.winfo_children():
             widget.destroy()
         labelEXP = ttk.Label(self.frame1, text="Informações sobre o SO:")
         infoSOLabel = ttk.Label(self.frame1, text=dados.infoSO)
-        labelEXP.pack()
-        infoSOLabel.pack()
+        labelEXP.grid()
+        infoSOLabel.grid()
 
     def attGraficoMemoria(self, dados):
         for widget in self.frame4_2.winfo_children():
