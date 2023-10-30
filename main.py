@@ -174,7 +174,9 @@ class DashboardApp:
     def attInfoProcesso(self, dados):
         for widget in self.frame5.winfo_children():
             widget.destroy()
-        i = 0
+        self.frame5.delete(0, END)
+        i = 1
+        self.frame5.insert(0, '')
         for linha in dados.processos:
             self.frame5.insert(i, linha)
             i+=1
@@ -184,6 +186,7 @@ class DashboardApp:
     def attInfoCPU(self, dados):
         for widget in self.frame2.winfo_children():
             widget.destroy()
+        self.frame2.delete(0, END)
         labelEXP = ttk.Label(self.frame2, text="Informações sobre a CPU:")
         i = 0
         for linha in dados.informacoesCPU:
@@ -194,8 +197,10 @@ class DashboardApp:
     def attInfoHardware(self, dados):
         for widget in self.frame3.winfo_children():
             widget.destroy()
+        self.frame3.delete(0, END)
         labelEXP = ttk.Label(self.frame3, text="Informações sobre o Hardware:")
-        i = 0
+        i = 1
+        self.frame3.insert(0, '')
         for linha in dados.infoHardware:
             self.frame3.insert(i, linha)
             i += 1
@@ -204,8 +209,10 @@ class DashboardApp:
     def attInfoParticoes(self, dados):
         for widget in self.frame6.winfo_children():
             widget.destroy()
+        self.frame6.delete(0, END)
         labelEXP = ttk.Label(self.frame6, text="Informações sobre as Partições:")
-        i = 0
+        i = 1
+        self.frame6.insert(0, '')
         for linha in dados.particoes:
             self.frame6.insert(i, linha)
             i += 1
