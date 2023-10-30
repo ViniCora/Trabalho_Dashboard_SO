@@ -1,22 +1,3 @@
-def buscaInfoMemoria(self):
-        self.memoriaResumo = subprocess.run(['free'], stdout=subprocess.PIPE)
-        memoriaInfos = str(self.memoriaResumo.stdout)
-        memoriaInfos.split()
-        segunda_linha = memoriaInfos.split("\\n")[1]
-        numbers = re.findall(r"\d+", segunda_linha)
-
-        mtotal = numbers[0]
-        mUsada = numbers[1]
-        mLivre = numbers[2]
-        mCompartilhada = numbers[3]
-        mBuff = numbers[4]
-        mDisponivel = numbers[5]
-
-        self.infoMemoria = subprocess.run(['cat', '/proc/meminfo'], stdout=subprocess.PIPE)
-        mDetalhada = text=self.infoMemoria.stdout
-
-
-
 ### Como Rodar
 ```
 python3 main.py
