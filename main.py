@@ -90,17 +90,17 @@ class BuscaDados:
 
     def buscaInfoHardware(self):
         hardwareInfo = subprocess.run(['lscpu'], stdout = subprocess.PIPE)
-        hardwareInfoText = text=hardwareInfo
+        hardwareInfoText = text=hardwareInfo.stdout
         self.infoHardware = hardwareInfoText.splitlines()
 
     def buscaProcessos(self):
         processosInfos = subprocess.run(['ps', 'aux'], stdout = subprocess.PIPE)
-        processosInfosText = text=processosInfos
+        processosInfosText = text=processosInfos.stdout
         self.processos = processosInfosText.splitlines()
 
     def buscaParticoes(self):
         particoesInfo = subprocess.run(['cat', '/proc/partitions'], stdout = subprocess.PIPE)
-        particoesInfosText = text=particoesInfo
+        particoesInfosText = text=particoesInfo.stdout
         self.particoes = particoesInfosText.splitlines()
 
     def buscaInfoSO(self):
@@ -139,13 +139,6 @@ class DashboardApp:
         self.frame5 = Frame(dashboard, width=960, height=530, bg='#eff5f6')
         nb.add(self.frame5, text="Info. processos")
 
-        nb3 = ttk.Notebook(self.frame5)
-        nb3.place(x=0, y=0)
-        self.frame5_1 = Frame(self.frame5, width=960, height=530, bg='#eff5f6')
-        nb3.add(self.frame5_1, text="Processos Lista")
-        self.frame5_2 = Frame(self.frame5, width=960, height=530, bg='#eff5f6')
-        nb3.add(self.frame5_2, text="Gráfico memória processos")
-
         self.frame6 = Frame(dashboard, width=960, height=530, bg='#eff5f6')
         nb.add(self.frame6, text="Info. partições")
 
@@ -166,16 +159,50 @@ class DashboardApp:
 
     def attInformacoes(self, dados):
         self.attGraficoMemoria(dados)
-        self.attGraficoUsoMemoriaProcessos(dados)
         self.attTabelaMemoria(dados)
         self.attInfoSO(dados)
+        self.attInfoProcesso(dados)
+        self.attInfoCPu(dados)
+        self.attInfoHardware(dados)
+        self.attInfoParticoes(dados)
+
+    def attInfoProcesso(self, dados):
+        for widget in self.frame5.winfo_children():
+            widget.destroy()
+        labelEXP = ttk.Label(self.frame5, text="Informações sobre os Processos:")
+        infoProcessosLabel = ttk.Label(self.frame5, text=dados.infoHardware)
+        labelEXP.pack()
+        infoProcessosLabel.pack()
+
+    def attInfoCPu(self, dados):
+        for widget in self.frame2.winfo_children():
+            widget.destroy()
+        labelEXP = ttk.Label(self.frame2, text="Informações sobre a CPU:")
+        infoCPULabel = ttk.Label(self.frame2, text=dados.infoHardware)
+        labelEXP.pack()
+        infoCPULabel.pack()
+
+    def attInfoHardware(self, dados):
+        for widget in self.frame3.winfo_children():
+            widget.destroy()
+        labelEXP = ttk.Label(self.frame3, text="Informações sobre o Hardware:")
+        infoHardwareLabel = ttk.Label(self.frame3, text=dados.infoHardware)
+        labelEXP.pack()
+        infoHardwareLabel.pack()
+
+    def attInfoParticoes(self, dados):
+        for widget in self.frame6.winfo_children():
+            widget.destroy()
+        labelEXP = ttk.Label(self.frame6, text="Informações sobre as Partições:")
+        infoParticoesLabel = ttk.Label(self.frame6, text=dados.particoes)
+        labelEXP.pack()
+        infoParticoesLabel.pack()
 
     def attInfoSO(self, dados):
         for widget in self.frame1.winfo_children():
             widget.destroy()
         labelEXP = ttk.Label(self.frame1, text="Informações sobre o SO:")
-        label = "Linux ubuntu22 6.2.0-35-generic #35~22.04.1-Ubuntu SMP PREEMPT_DYNAMIC Fri Oct  6 10:23:26 UTC 2 x86_64 x86_64 x86_64 GNU/Linux"
-        infoSOLabel = ttk.Label(self.frame1, text=label)
+        infoSOLabel = ttk.Label(self.frame1, text=dados.infoSO)
         labelEXP.pack()
         infoSOLabel.pack()
 
@@ -189,24 +216,6 @@ class DashboardApp:
 
         ax.pie(sizes, labels=labels, autopct='%1.1f%%', startangle=90)
         canvas = FigureCanvasTkAgg(fig, master=self.frame4_2)
-        canvas.draw()
-        canvas.get_tk_widget().pack()
-
-    def attGraficoUsoMemoriaProcessos(self, dados):
-        for widget in self.frame5_2.winfo_children():
-            widget.destroy()
-        fig = Figure(figsize=(5, 4), dpi=100)
-        ax = fig.add_subplot(111)
-        labels = ['Usado', 'Livre', 'Disponivel', 'Shared']
-        if self.teste == False:
-            sizes = [15, 30, 45, 10]
-            self.teste = True
-        else:
-            sizes = [20, 35, 40, 15]
-            self.teste = False
-
-        ax.pie(sizes, labels=labels, autopct='%1.1f%%', startangle=90)
-        canvas = FigureCanvasTkAgg(fig, master=self.frame5_2)
         canvas.draw()
         canvas.get_tk_widget().pack()
 
