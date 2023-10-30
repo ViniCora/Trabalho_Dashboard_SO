@@ -53,6 +53,12 @@ class BuscaDados:
         self.processos = None
         self.particoes = None
         self.infoSO = None
+        self.mtotal = None
+        self.mUsada = None
+        self.mLivre = None
+        self.mCompartilhada = None
+        self.mBuff = None
+        self.mDisponivel = None
 
     def buscaInformacoesCPU(self):
         self.informacoesCPU = subprocess.run(['cat', '/proc/cpuinfo'], stdout=subprocess.PIPE)
@@ -62,19 +68,21 @@ class BuscaDados:
 
     def buscaInfoMemoria(self):
         self.memoriaResumo = subprocess.run(['free'], stdout=subprocess.PIPE)
-        memoriaInfos = text=self.memoriaResumo.stdout
-        segunda_linha = memoriaInfos.split("\n")[1]
+        memoriaInfos = str(self.memoriaResumo.stdout)
+        memoriaInfos.split()
+        segunda_linha = memoriaInfos.split("\\n")[1]
         numbers = re.findall(r"\d+", segunda_linha)
 
-        mtotal = numbers[1]
-        mUsada = numbers[2]
-        mLivre = numbers[3]
-        mCompartilhada = numbers[4]
-        mBuff = numbers[5]
-        mDisponivel = numbers[6]
+        self.mtotal = numbers[0]
+        self.mUsada = numbers[1]
+        self.mLivre = numbers[2]
+        self.mCompartilhada = numbers[3]
+        self.mBuff = numbers[4]
+        self.mDisponivel = numbers[5]
 
         self.infoMemoria = subprocess.run(['cat', '/proc/meminfo'], stdout=subprocess.PIPE)
         mDetalhada = text=self.infoMemoria.stdout
+
 
     def buscaQuantidadeCPU(self):
         cpu = subprocess.run(['nproc'], stdout = subprocess.PIPE)
@@ -105,7 +113,6 @@ class DashboardApp:
         self.dashboard.title("Dashboard Sistemas Operacionais")
         self.dashboard.geometry("960x540")
         self.teste = False
-        self.teste2 = False
 
         nb = ttk.Notebook(self.dashboard)
         nb.place(x=0, y=0)
@@ -149,12 +156,12 @@ class DashboardApp:
         table.pack()
         table.heading(1, text="Tipo")
         table.heading(2, text="Valor usado/disponivel (kb)")
-        table.insert('', tk.END, values=['Memoria Total', 2849964])
-        table.insert('', tk.END, values=['Memoria Usado', 2380868])
-        table.insert('', tk.END, values=['Memoria Livre', 82748])
-        table.insert('', tk.END, values=['Buff/Cache', 386348])
-        table.insert('', tk.END, values=['Memoria Compartilhada', 28852])
-        table.insert('', tk.END, values=['Memoria Disponivel', 273768])
+        table.insert('', tk.END, values=['Memoria Total', dados.mtotal])
+        table.insert('', tk.END, values=['Memoria Usado', dados.mUsada])
+        table.insert('', tk.END, values=['Memoria Livre', dados.mLivre])
+        table.insert('', tk.END, values=['Buff/Cache', dados.mBuff])
+        table.insert('', tk.END, values=['Memoria Compartilhada', dados.mCompartilhada])
+        table.insert('', tk.END, values=['Memoria Disponivel', dados.mDisponivel])
 
 
     def attInformacoes(self, dados):
@@ -178,12 +185,7 @@ class DashboardApp:
         fig = Figure(figsize=(5, 4), dpi=100)
         ax = fig.add_subplot(111)
         labels = ['Usado', 'Livre', 'Buffer/Cache']
-        if self.teste2 == False:
-            sizes = [2380868, 82748, 386348]
-            self.teste2 = True
-        else:
-            sizes = [20, 35, 40]
-            self.teste2 = False
+        sizes = [dados.mUsada, dados.mLivre, dados.mBuff]
 
         ax.pie(sizes, labels=labels, autopct='%1.1f%%', startangle=90)
         canvas = FigureCanvasTkAgg(fig, master=self.frame4_2)
