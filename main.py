@@ -222,7 +222,7 @@ class DashboardApp:
         for widget in self.frame1.winfo_children():
             widget.destroy()
         labelEXP = ttk.Label(self.frame1, text="Informações sobre o SO:")
-        infoSOLabel = ttk.Label(self.frame1, text=dados.infoSO)
+        infoSOLabel = ttk.Label(self.frame1, text=dados.infoSO, background='#eff5f6')
         labelEXP.grid()
         infoSOLabel.grid()
 
