@@ -104,7 +104,7 @@ class BuscaDados:
         self.particoes = particoesInfosText.splitlines()
 
     def buscaInfoSO(self):
-        self.infoSO = subprocess.run(["uname", '-a'], stdout=subprocess.PIPE)
+        self.infoSO = subprocess.run(["uname", '-a'], stdout=subprocess.PIPE).stdout
 
 #View
 class DashboardApp:
@@ -120,7 +120,7 @@ class DashboardApp:
         self.frame1 = Frame(dashboard, width=960, height=530, bg='#eff5f6')
         nb.add(self.frame1, text="Info. SO")
 
-        self.frame2 = Frame(dashboard, width=960, height=530, bg='#eff5f6')
+        self.frame2 = tk.Listbox(dashboard, width=960, height=530, bg='#eff5f6')
         nb.add(self.frame2, text="Info. CPU")
 
         self.frame3 = Frame(dashboard, width=960, height=530, bg='#eff5f6')
@@ -136,7 +136,7 @@ class DashboardApp:
         self.frame4_2 = Frame(self.frame4, width=960, height=530, bg='#eff5f6')
         nb2.add(self.frame4_2, text="Gráfico memória")
 
-        self.frame5 = tk.Listbox(dashboard, width=960, height=530)
+        self.frame5 = tk.Listbox(dashboard, width=960, height=530, bg='#eff5f6')
         nb.add(self.frame5, text="Info. processos")
         scroll = tk.Scrollbar( self.frame5)
         scroll.pack(side="right", fill="both")
@@ -150,7 +150,7 @@ class DashboardApp:
     def attTabelaMemoria(self, dados):
         for widget in self.frame4_1.winfo_children():
             widget.destroy()
-        table = ttk.Treeview(self.frame4_1, columns=(1, 2), show="headings", height=10)
+        table = ttk.Treeview(self.frame4_1, columns=(1,2), show="headings", height=10)
         table.pack()
         table.heading(1, text="Tipo")
         table.heading(2, text="Valor usado/disponivel (kb)")
@@ -167,7 +167,7 @@ class DashboardApp:
         self.attTabelaMemoria(dados)
         self.attInfoSO(dados)
         self.attInfoProcesso(dados)
-        self.attInfoCPu(dados)
+        self.attInfoCPU(dados)
         self.attInfoHardware(dados)
         self.attInfoParticoes(dados)
 
@@ -181,13 +181,15 @@ class DashboardApp:
         labelEXP = ttk.Label(self.frame5, text="Informações sobre os Processos:")
         labelEXP.pack()
 
-    def attInfoCPu(self, dados):
+    def attInfoCPU(self, dados):
         for widget in self.frame2.winfo_children():
             widget.destroy()
         labelEXP = ttk.Label(self.frame2, text="Informações sobre a CPU:")
-        infoCPULabel = ttk.Label(self.frame2, text=dados.informacoesCPU)
+        i = 0
+        for linha in dados.processos:
+            self.frame2.insert(i, linha)
+            i += 1
         labelEXP.pack()
-        infoCPULabel.pack()
 
     def attInfoHardware(self, dados):
         for widget in self.frame3.winfo_children():
