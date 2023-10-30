@@ -94,7 +94,7 @@ class BuscaDados:
         self.infoHardware = hardwareInfoText.splitlines()
 
     def buscaProcessos(self):
-        processosInfos = subprocess.run(['ps', 'aux'], stdout = subprocess.PIPE)
+        processosInfos = subprocess.run(['top', '-b', '-n1'], stdout = subprocess.PIPE)
         processosInfosText = text=processosInfos.stdout
         self.processos = processosInfosText.splitlines()
 
