@@ -136,8 +136,13 @@ class DashboardApp:
         self.frame4_2 = Frame(self.frame4, width=960, height=530, bg='#eff5f6')
         nb2.add(self.frame4_2, text="Gráfico memória")
 
-        self.frame5 = Frame(dashboard, width=960, height=530, bg='#eff5f6')
+        self.frame5 = tk.Listbox(dashboard, width=960, height=530)
         nb.add(self.frame5, text="Info. processos")
+        scroll = tk.Scrollbar( self.frame5)
+        scroll.pack(side="right", fill="both")
+
+        self.frame5.config(yscrollcommand=scroll.set)
+        scroll.config(command= self.frame5.yview)
 
         self.frame6 = Frame(dashboard, width=960, height=530, bg='#eff5f6')
         nb.add(self.frame6, text="Info. partições")
@@ -169,16 +174,18 @@ class DashboardApp:
     def attInfoProcesso(self, dados):
         for widget in self.frame5.winfo_children():
             widget.destroy()
+        i = 0
+        for linha in dados.processos.splitlines():
+            self.frame5.insert(i, linha)
+            i+=1
         labelEXP = ttk.Label(self.frame5, text="Informações sobre os Processos:")
-        infoProcessosLabel = ttk.Label(self.frame5, text=dados.infoHardware)
         labelEXP.pack()
-        infoProcessosLabel.pack()
 
     def attInfoCPu(self, dados):
         for widget in self.frame2.winfo_children():
             widget.destroy()
         labelEXP = ttk.Label(self.frame2, text="Informações sobre a CPU:")
-        infoCPULabel = ttk.Label(self.frame2, text=dados.infoHardware)
+        infoCPULabel = ttk.Label(self.frame2, text=dados.informacoesCPU)
         labelEXP.pack()
         infoCPULabel.pack()
 
