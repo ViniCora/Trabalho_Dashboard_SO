@@ -62,7 +62,7 @@ class BuscaDados:
 
     def buscaInformacoesCPU(self):
         cpuInfos = subprocess.run(['cat', '/proc/cpuinfo'], stdout=subprocess.PIPE)
-        cpuInfosText = str(cpuInfos.stdout)
+        cpuInfosText = text=cpuInfos.stdout
         self.informacoesCPU = cpuInfosText.splitlines()
 
 
@@ -90,17 +90,17 @@ class BuscaDados:
 
     def buscaInfoHardware(self):
         hardwareInfo = subprocess.run(['lscpu'], stdout = subprocess.PIPE)
-        hardwareInfoText = str(hardwareInfo.stdout)
+        hardwareInfoText = text=hardwareInfo.stdout
         self.infoHardware = hardwareInfoText.splitlines()
 
     def buscaProcessos(self):
         processosInfos = subprocess.run(['ps', 'aux'], stdout = subprocess.PIPE)
-        processosInfosText = str(processosInfos.stdout)
+        processosInfosText = text=processosInfos.stdout
         self.processos = processosInfosText.splitlines()
 
     def buscaParticoes(self):
         particoesInfo = subprocess.run(['cat', '/proc/partitions'], stdout = subprocess.PIPE)
-        particoesInfosText = str(particoesInfo.stdout)
+        particoesInfosText = text=particoesInfo.stdout
         self.particoes = particoesInfosText.splitlines()
 
     def buscaInfoSO(self):
