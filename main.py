@@ -61,9 +61,9 @@ class BuscaDados:
         self.mDisponivel = None
 
     def buscaInformacoesCPU(self):
-        self.informacoesCPU = subprocess.run(['cat', '/proc/cpuinfo'], stdout=subprocess.PIPE)
-        cpuInfos = text=self.informacoesCPU.stdout
-        cpuInfos.splitlines()
+        cpuInfos = subprocess.run(['cat', '/proc/cpuinfo'], stdout=subprocess.PIPE)
+        cpuInfosText = str(cpuInfos.stdout)
+        self.informacoesCPU = cpuInfosText.splitlines()
 
 
     def buscaInfoMemoria(self):
@@ -90,17 +90,17 @@ class BuscaDados:
 
     def buscaInfoHardware(self):
         hardwareInfo = subprocess.run(['lscpu'], stdout = subprocess.PIPE)
-        hardwareInfoText = text=hardwareInfo.stdout
+        hardwareInfoText = str(hardwareInfo.stdout)
         self.infoHardware = hardwareInfoText.splitlines()
 
     def buscaProcessos(self):
         processosInfos = subprocess.run(['ps', 'aux'], stdout = subprocess.PIPE)
-        processosInfosText = text=processosInfos.stdout
+        processosInfosText = str(processosInfos.stdout)
         self.processos = processosInfosText.splitlines()
 
     def buscaParticoes(self):
         particoesInfo = subprocess.run(['cat', '/proc/partitions'], stdout = subprocess.PIPE)
-        particoesInfosText = text=particoesInfo.stdout
+        particoesInfosText = str(particoesInfo.stdout)
         self.particoes = particoesInfosText.splitlines()
 
     def buscaInfoSO(self):
@@ -175,7 +175,7 @@ class DashboardApp:
         for widget in self.frame5.winfo_children():
             widget.destroy()
         i = 0
-        for linha in dados.processos.splitlines():
+        for linha in dados.processos:
             self.frame5.insert(i, linha)
             i+=1
         labelEXP = ttk.Label(self.frame5, text="Informações sobre os Processos:")
