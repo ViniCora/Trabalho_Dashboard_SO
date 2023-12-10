@@ -33,3 +33,5 @@ cat /proc/partitions
 Informações do sistema operacional
 uname -a 
 ```
+lrwxrwxrwx   1 root root    7 out 26 22:04 bin -> usr/bin\ndrwxr-xr-x   4 root root 4,0K dez 10 17:47 boot
+
