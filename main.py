@@ -131,6 +131,8 @@ class BuscaDados:
         self.diretorios = parseado
 
     def parse_file_entries(data):
+        print("Entrou")
+        print(data)
         entries = []
         lines = data.strip().split('\n')
         primeira_linha = True
