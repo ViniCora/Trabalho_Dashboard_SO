@@ -126,15 +126,18 @@ class BuscaDados:
         self.infoParticoesDir = subprocess.run(["df", '-h'], stdout=subprocess.PIPE).stdout
 
     def buscaDiretoriosRoot(self):
-        linhas = (subprocess.run(["ls", '-lh', '/'], stdout=subprocess.PIPE).stdout)
+        linhas = subprocess.run(["ls", '-lh', '/'], stdout=subprocess.PIPE).stdout
         parseado = self.parse_file_entries(linhas)
         self.diretorios = parseado
 
     def parse_file_entries(data):
         entries = []
         lines = data.strip().split('\n')
-
+        primeira_linha = True
         for line in lines:
+            if primeira_linha == True:
+                primeira_linha = False
+                continue
             parts = line.split()
             entry = {
                 'permissions': parts[0],
