@@ -375,7 +375,8 @@ class DashboardApp:
         for entry in diretorios:
             table.insert('', tk.END, values=[entry['name'], entry['permissions'], entry['links'], entry['owner'],
                                              entry['size'], entry['modified_date']])
-        button = tk.Button(self.frame7_1, text="Clique-me!", command=self.botao_voltar)
+        button = tk.Button(self.frame7_1, text="Voltar", command=self.botao_voltar)
+        button.pack(pady=10)
         def item_selected(event):
             item = table.selection()[0]
             # Obtém os valores da linha clicada
