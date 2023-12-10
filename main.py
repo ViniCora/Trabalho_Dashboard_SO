@@ -26,24 +26,24 @@ class DashboardController:
         thread6 = threading.Thread(target=self.dados.buscaInformacoesCPU)
         thread7 = threading.Thread(target=self.dados.buscaQuantidadeCPU)
         thread8 = threading.Thread(target=self.dados.buscaInfoParticoesDir)
+        self.dados.buscaDiretoriosRoot()
 
-
-        thread1.start()
-        thread2.start()
-        thread3.start()
-        thread4.start()
-        thread5.start()
-        thread6.start()
-        thread7.start()
-        thread8.start()
-        thread1.join()
-        thread2.join()
-        thread3.join()
-        thread4.join()
-        thread5.join()
-        thread6.join()
-        thread7.join()
-        thread8.join()
+        #thread1.start()
+        #thread2.start()
+        #thread3.start()
+        #thread4.start()
+        #thread5.start()
+        #thread6.start()
+        #thread7.start()
+        #thread8.start()
+        #thread1.join()
+        #thread2.join()
+        #thread3.join()
+        #thread4.join()
+        #thread5.join()
+        #thread6.join()
+        #thread7.join()
+        #thread8.join()
         #Depois de buscar as informações o dashboard é atualizado com os dados
         self.dashApp.attInformacoes(self.dados)
         self.dashboard.after(5000, self.buscarDados)
@@ -68,6 +68,7 @@ class BuscaDados:
         self.mBuff = None
         self.mDisponivel = None
         self.infoParticoesDir = None
+        self.diretorios = None
 
     #Busca das informações do CPU
     def buscaInformacoesCPU(self):
@@ -124,6 +125,9 @@ class BuscaDados:
     def buscaInfoParticoesDir(self):
         self.infoParticoesDir = subprocess.run(["df", '-h'], stdout=subprocess.PIPE).stdout
 
+    def buscaDiretoriosRoot(self):
+        self.diretorios = subprocess.run(["ls", '-lh', '/'], stdout=subprocess.PIPE).stdout
+
 #View
 class DashboardApp:
     #Essa classe manipula especificamente a parte visual do codigo, pegando os dados da classe de BuscaDados
@@ -131,7 +135,8 @@ class DashboardApp:
         #Criação dos Frames, Notebooks e ListBox
         self.dashboard = dashboard
         self.dashboard.title("Dashboard Sistemas Operacionais")
-        self.dashboard.geometry("960x540")
+        self.dashboard.geometry("1200x540")
+        self.first = True
 
         nb = ttk.Notebook(self.dashboard)
         nb.place(x=0, y=0)
@@ -166,30 +171,33 @@ class DashboardApp:
         self.frame6 = tk.Listbox(dashboard, width=960, height=530, bg='#eff5f6')
         nb.add(self.frame6, text="Info. partições")
 
-        self.frame7 = tk.Listbox(dashboard, width=960, height=530, bg='#eff5f6')
+        self.frame7 = tk.Frame(dashboard, width=960, height=530, bg='#eff5f6')
         nb.add(self.frame7, text="Info. Arquivos")
 
         nb3 = ttk.Notebook(self.frame7)
         nb3.place(x=0, y=0)
         self.frame7_1 = tk.Listbox(self.frame7, width=960, height=530, bg='#eff5f6')
-        nb3.add(self.frame7_1, text="Info. Partições")
-        self.frame7_2 = tk.Listbox(self.frame7, width=960, height=530, bg='#eff5f6')
-        nb3.add(self.frame7_2, text="Navegação Diretórios")
+        nb3.add(self.frame7_1, text="Navegação Diretórios")
 
         self.frame8 = tk.Listbox(dashboard, width=960, height=530, bg='#eff5f6')
-        nb.add(self.frame8, text="Entrada/Saída")
+        nb.add(self.frame8, text="Info. Partições Sis. Arqui.")
+
+        self.frame9 = tk.Listbox(dashboard, width=960, height=530, bg='#eff5f6')
+        nb.add(self.frame9, text="Entrada/Saída")
 
     #Função que atualiza todas as abas de informações
     def attInformacoes(self, dados):
         # self.attGraficoMemoria(dados)
-        # self.attTabelaMemoria(dados)
+        self.attTabelaMemoria(dados)
         # self.attInfoSO(dados)
         # self.attInfoProcesso(dados)
         # self.attInfoCPU(dados)
         # self.attInfoHardware(dados)
         # self.attInfoParticoes(dados)
         # self.attInfoParticoesDir(dados)
-        print()
+        if self.first == True:
+            self.attTabelaDiretorios(dados)
+            self.first = False
 
     # Atualiza a tabela de dados da memoria usando Treeview
     def attTabelaMemoria(self, dados):
@@ -300,18 +308,42 @@ class DashboardApp:
 
     def attInfoParticoesDir(self, dados):
         # Deleta as informações antigas
-        for widget in self.frame7_1.winfo_children():
+        for widget in self.frame8.winfo_children():
             widget.destroy()
-        self.frame7_1.delete(0, END)
-        labelEXP = ttk.Label(self.frame7_1, text="Informações sobre as Partições do Sistema de arquivos:")
+        self.frame8.delete(0, END)
+        labelEXP = ttk.Label(self.frame8, text="Informações sobre as Partições do Sistema de arquivos:")
         i = 1
         # Insere uma linha vazia para identação
-        self.frame7_1.insert(0, '')
+        self.frame8.insert(0, '')
         # Adiciona as linhas de informações
         for linha in dados.infoParticoesDir:
-            self.frame7_1.insert(i, linha)
+            self.frame8.insert(i, linha)
             i += 1
         labelEXP.grid()
+
+    def attTabelaDiretorios(self, dados):
+        for widget in self.frame7_1.winfo_children():
+            widget.destroy()
+
+        print(dados.diretorios)
+        table = ttk.Treeview(self.frame7_1, columns=(1, 2, 3, 4, 5, 6), show="headings", height=10)
+        table.pack()
+        table.heading(1, text="Nome Diretorio")
+        table.heading(2, text="Permissões")
+        table.heading(3, text="Número de link")
+        table.heading(4, text="Proprietário")
+        table.heading(5, text="Tamanho conteudo (bytes)")
+        table.heading(6, text="Data/Hora de modificação")
+        table.insert('', tk.END, values=['Teste1', "drwxr-xr-x", 2, "Vinicius", 4096, "out 26 23:55:00"])
+        table.insert('', tk.END, values=['Teste2', "drwxr-xr-x", 2, "Naomi", 4096, "out 26 23:54:00"])
+
+        def item_selected(event):
+            item = table.selection()[0]
+            # Obtém os valores da linha clicada
+            values = table.item(item, 'values')
+            print(values)
+
+        table.bind('<<TreeviewSelect>>', item_selected)
 
 if __name__ == "__main__":
     dash = DashboardController()
