@@ -126,13 +126,11 @@ class BuscaDados:
         self.infoParticoesDir = subprocess.run(["df", '-h'], stdout=subprocess.PIPE).stdout
 
     def buscaDiretoriosRoot(self):
-        linhas = subprocess.run(["ls", '-lh', '/'], stdout=subprocess.PIPE).stdout
-        parseado = self.parse_file_entries(linhas)
+        linhas = subprocess.run(["ls", '-lh', '/'], capture_output=True, text=True)
+        parseado = self.parse_file_entries(linhas.stdout)
         self.diretorios = parseado
 
-    def parse_file_entries(data):
-        print("Entrou")
-        print(data)
+    def parse_file_entries(self, data):
         entries = []
         lines = data.strip().split('\n')
         primeira_linha = True
@@ -163,6 +161,8 @@ class DashboardApp:
         self.dashboard.title("Dashboard Sistemas Operacionais")
         self.dashboard.geometry("1200x540")
         self.first = True
+        self.caminho = '/'
+        self.last_caminhos = ['/']
 
         nb = ttk.Notebook(self.dashboard)
         nb.place(x=0, y=0)
@@ -222,7 +222,7 @@ class DashboardApp:
         # self.attInfoParticoes(dados)
         # self.attInfoParticoesDir(dados)
         if self.first == True:
-            self.attTabelaDiretorios(dados)
+            self.attTabelaDiretorios(dados.diretorios)
             self.first = False
 
     # Atualiza a tabela de dados da memoria usando Treeview
@@ -347,11 +347,23 @@ class DashboardApp:
             i += 1
         labelEXP.grid()
 
-    def attTabelaDiretorios(self, dados):
+    def buscaDiretorioFilhos(self, caminho):
+        linhas = subprocess.run(["ls", '-lh', '/'], capture_output=True, text=True)
+        parseado = self.parse_file_entries(linhas.stdout)
+        return parseado
+
+    def botao_voltar(self):
+        last_caminho = self.last_caminhos[-1]
+        if last_caminho == '/':
+            return
+        diretorios = self.buscaDiretorioFilhos(self.last_caminhos[-1])
+        self.last_caminhos.pop()
+        self.attTabelaDiretorios(diretorios)
+
+    def attTabelaDiretorios(self, diretorios):
         for widget in self.frame7_1.winfo_children():
             widget.destroy()
 
-        print(dados.diretorios)
         table = ttk.Treeview(self.frame7_1, columns=(1, 2, 3, 4, 5, 6), show="headings", height=10)
         table.pack()
         table.heading(1, text="Nome Diretorio")
@@ -360,17 +372,23 @@ class DashboardApp:
         table.heading(4, text="Proprietário")
         table.heading(5, text="Tamanho conteudo (bytes)")
         table.heading(6, text="Data/Hora de modificação")
-        table.insert('', tk.END, values=['Teste1', "drwxr-xr-x", 2, "Vinicius", 4096, "out 26 23:55:00"])
-        table.insert('', tk.END, values=['Teste2', "drwxr-xr-x", 2, "Naomi", 4096, "out 26 23:54:00"])
-        for entry in dados.diretorios:
+        for entry in diretorios:
             table.insert('', tk.END, values=[entry['name'], entry['permissions'], entry['links'], entry['owner'],
                                              entry['size'], entry['modified_date']])
-
+        button = tk.Button(self.frame7_1, text="Clique-me!", command=self.botao_voltar)
         def item_selected(event):
             item = table.selection()[0]
             # Obtém os valores da linha clicada
             values = table.item(item, 'values')
-            print(values[0])
+            if self.caminho == "/":
+                self.caminho += values[0]
+            else:
+                self.last_caminhos.append(self.caminho)
+                self.caminho = self.caminho + '/' + values[0]
+
+            diretorios_filhos = self.buscaDiretorioFilhos(self.caminho)
+
+            self.attTabelaDiretorios(diretorios_filhos)
 
         table.bind('<<TreeviewSelect>>', item_selected)
 
