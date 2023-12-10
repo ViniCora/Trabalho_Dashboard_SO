@@ -126,7 +126,28 @@ class BuscaDados:
         self.infoParticoesDir = subprocess.run(["df", '-h'], stdout=subprocess.PIPE).stdout
 
     def buscaDiretoriosRoot(self):
-        self.diretorios = subprocess.run(["ls", '-lh', '/'], stdout=subprocess.PIPE).stdout
+        linhas = (subprocess.run(["ls", '-lh', '/'], stdout=subprocess.PIPE).stdout)
+        parseado = self.parse_file_entries(linhas)
+        self.diretorios = parseado
+
+    def parse_file_entries(data):
+        entries = []
+        lines = data.strip().split('\n')
+
+        for line in lines:
+            parts = line.split()
+            entry = {
+                'permissions': parts[0],
+                'links': int(parts[1]),
+                'owner': parts[2],
+                'group': parts[3],
+                'size': parts[4],
+                'modified_date': ' '.join(parts[5:8]),
+                'name': parts[8]
+            }
+            entries.append(entry)
+
+        return entries
 
 #View
 class DashboardApp:
@@ -336,12 +357,15 @@ class DashboardApp:
         table.heading(6, text="Data/Hora de modificação")
         table.insert('', tk.END, values=['Teste1', "drwxr-xr-x", 2, "Vinicius", 4096, "out 26 23:55:00"])
         table.insert('', tk.END, values=['Teste2', "drwxr-xr-x", 2, "Naomi", 4096, "out 26 23:54:00"])
+        for entry in dados.diretorios:
+            table.insert('', tk.END, values=[entry['name'], entry['permissions'], entry['links'], entry['owner'],
+                                             entry['size'], entry['modified_date']])
 
         def item_selected(event):
             item = table.selection()[0]
             # Obtém os valores da linha clicada
             values = table.item(item, 'values')
-            print(values)
+            print(values[0])
 
         table.bind('<<TreeviewSelect>>', item_selected)
 
