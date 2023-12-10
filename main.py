@@ -25,6 +25,8 @@ class DashboardController:
         thread5 = threading.Thread(target=self.dados.buscaInfoMemoria)
         thread6 = threading.Thread(target=self.dados.buscaInformacoesCPU)
         thread7 = threading.Thread(target=self.dados.buscaQuantidadeCPU)
+        thread8 = threading.Thread(target=self.dados.buscaInfoParticoesDir)
+
 
         thread1.start()
         thread2.start()
@@ -33,6 +35,7 @@ class DashboardController:
         thread5.start()
         thread6.start()
         thread7.start()
+        thread8.start()
         thread1.join()
         thread2.join()
         thread3.join()
@@ -40,6 +43,7 @@ class DashboardController:
         thread5.join()
         thread6.join()
         thread7.join()
+        thread8.join()
         #Depois de buscar as informações o dashboard é atualizado com os dados
         self.dashApp.attInformacoes(self.dados)
         self.dashboard.after(5000, self.buscarDados)
@@ -63,6 +67,7 @@ class BuscaDados:
         self.mCompartilhada = None
         self.mBuff = None
         self.mDisponivel = None
+        self.infoParticoesDir = None
 
     #Busca das informações do CPU
     def buscaInformacoesCPU(self):
@@ -116,6 +121,9 @@ class BuscaDados:
     def buscaInfoSO(self):
         self.infoSO = subprocess.run(["uname", '-a'], stdout=subprocess.PIPE).stdout
 
+    def buscaInfoParticoesDir(self):
+        self.infoParticoesDir = subprocess.run(["df", '-h'], stdout=subprocess.PIPE).stdout
+
 #View
 class DashboardApp:
     #Essa classe manipula especificamente a parte visual do codigo, pegando os dados da classe de BuscaDados
@@ -158,15 +166,30 @@ class DashboardApp:
         self.frame6 = tk.Listbox(dashboard, width=960, height=530, bg='#eff5f6')
         nb.add(self.frame6, text="Info. partições")
 
+        self.frame7 = tk.Listbox(dashboard, width=960, height=530, bg='#eff5f6')
+        nb.add(self.frame7, text="Info. Arquivos")
+
+        nb3 = ttk.Notebook(self.frame7)
+        nb3.place(x=0, y=0)
+        self.frame7_1 = tk.Listbox(self.frame7, width=960, height=530, bg='#eff5f6')
+        nb3.add(self.frame7_1, text="Info. Partições")
+        self.frame7_2 = tk.Listbox(self.frame7, width=960, height=530, bg='#eff5f6')
+        nb3.add(self.frame7_2, text="Navegação Diretórios")
+
+        self.frame8 = tk.Listbox(dashboard, width=960, height=530, bg='#eff5f6')
+        nb.add(self.frame8, text="Entrada/Saída")
+
     #Função que atualiza todas as abas de informações
     def attInformacoes(self, dados):
-        self.attGraficoMemoria(dados)
-        self.attTabelaMemoria(dados)
-        self.attInfoSO(dados)
-        self.attInfoProcesso(dados)
-        self.attInfoCPU(dados)
-        self.attInfoHardware(dados)
-        self.attInfoParticoes(dados)
+        # self.attGraficoMemoria(dados)
+        # self.attTabelaMemoria(dados)
+        # self.attInfoSO(dados)
+        # self.attInfoProcesso(dados)
+        # self.attInfoCPU(dados)
+        # self.attInfoHardware(dados)
+        # self.attInfoParticoes(dados)
+        # self.attInfoParticoesDir(dados)
+        print()
 
     # Atualiza a tabela de dados da memoria usando Treeview
     def attTabelaMemoria(self, dados):
@@ -274,6 +297,21 @@ class DashboardApp:
         canvas = FigureCanvasTkAgg(fig, master=self.frame4_2)
         canvas.draw()
         canvas.get_tk_widget().pack()
+
+    def attInfoParticoesDir(self, dados):
+        # Deleta as informações antigas
+        for widget in self.frame7_1.winfo_children():
+            widget.destroy()
+        self.frame7_1.delete(0, END)
+        labelEXP = ttk.Label(self.frame7_1, text="Informações sobre as Partições do Sistema de arquivos:")
+        i = 1
+        # Insere uma linha vazia para identação
+        self.frame7_1.insert(0, '')
+        # Adiciona as linhas de informações
+        for linha in dados.infoParticoesDir:
+            self.frame7_1.insert(i, linha)
+            i += 1
+        labelEXP.grid()
 
 if __name__ == "__main__":
     dash = DashboardController()
