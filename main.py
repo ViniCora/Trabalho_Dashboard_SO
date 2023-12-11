@@ -26,24 +26,24 @@ class DashboardController:
         thread6 = threading.Thread(target=self.dados.buscaInformacoesCPU)
         thread7 = threading.Thread(target=self.dados.buscaQuantidadeCPU)
         thread8 = threading.Thread(target=self.dados.buscaInfoParticoesDir)
-        self.dados.buscaDiretoriosRoot()
+        #self.dados.buscaDiretoriosRoot()
 
-        thread1.start()
-        thread2.start()
-        thread3.start()
-        thread4.start()
-        thread5.start()
-        thread6.start()
-        thread7.start()
-        thread8.start()
-        thread1.join()
-        thread2.join()
-        thread3.join()
-        thread4.join()
-        thread5.join()
-        thread6.join()
-        thread7.join()
-        thread8.join()
+        #thread1.start()
+        #thread2.start()
+        #thread3.start()
+        #thread4.start()
+        #thread5.start()
+        #thread6.start()
+        #thread7.start()
+        #thread8.start()
+        #thread1.join()
+        #thread2.join()
+        #thread3.join()
+        #thread4.join()
+        #thread5.join()
+        #thread6.join()
+        #thread7.join()
+        #thread8.join()
         #Depois de buscar as informações o dashboard é atualizado com os dados
         self.dashApp.attInformacoes(self.dados)
         self.dashboard.after(5000, self.buscarDados)
@@ -69,6 +69,7 @@ class BuscaDados:
         self.mDisponivel = None
         self.infoParticoesDir = None
         self.diretorios = None
+        self.processosAtivos = None
 
     #Busca das informações do CPU
     def buscaInformacoesCPU(self):
@@ -123,12 +124,41 @@ class BuscaDados:
         self.infoSO = subprocess.run(["uname", '-a'], stdout=subprocess.PIPE).stdout
 
     def buscaInfoParticoesDir(self):
-        self.infoParticoesDir = subprocess.run(["df", '-h'], stdout=subprocess.PIPE).stdout
+        self.infoParticoesDir = subprocess.run(["df", '-h'], capture_output=True, text=True).stdout
 
     def buscaDiretoriosRoot(self):
         linhas = subprocess.run(["ls", '-lh', '/'], capture_output=True, text=True)
         parseado = self.parse_file_entries(linhas.stdout)
         self.diretorios = parseado
+
+    def buscaProcessosAtivos(self):
+        linhas = subprocess.run(["ps", 'aux'], capture_output=True, text=True)
+        parseado = self.parse_file_entries_processo(linhas.stdout)
+        self.processosAtivos = parseado
+
+    def parse_file_entries_processo(self, dados):
+        entries = []
+        lines = dados.strip().split('\n')
+
+        for line in lines:
+            parts = line.split()
+            if len(parts) >= 11:
+                entry = {
+                    'USER': parts[0],
+                    'PID': int(parts[1]),
+                    '%CPU': float(parts[2]),
+                    '%MEM': float(parts[3]),
+                    'VSZ': int(parts[4]),
+                    'RSS': int(parts[5]),
+                    'TTY': parts[6],
+                    'STAT': parts[7],
+                    'START': parts[8],
+                    'TIME': parts[9],
+                    'COMMAND': ' '.join(parts[10:])
+                }
+                entries.append(entry)
+
+        return entries
 
     def parse_file_entries(self, data):
         entries = []
@@ -208,22 +238,29 @@ class DashboardApp:
         self.frame8 = tk.Listbox(dashboard, width=960, height=530, bg='#eff5f6')
         nb.add(self.frame8, text="Info. Partições Sis. Arqui.")
 
-        self.frame9 = tk.Listbox(dashboard, width=960, height=530, bg='#eff5f6')
+        self.frame9 = tk.Frame(dashboard, width=960, height=530, bg='#eff5f6')
         nb.add(self.frame9, text="Entrada/Saída")
+
+        nb4 = ttk.Notebook(self.frame9)
+        nb4.place(x=0, y=0)
+        self.frame9_1 = tk.Frame(self.frame9, width=960, height=530, bg='#eff5f6')
+        nb4.add(self.frame9_1, text="Processos")
+
 
     #Função que atualiza todas as abas de informações
     def attInformacoes(self, dados):
-        self.attGraficoMemoria(dados)
-        self.attTabelaMemoria(dados)
-        self.attInfoSO(dados)
-        self.attInfoProcesso(dados)
-        self.attInfoCPU(dados)
-        self.attInfoHardware(dados)
-        self.attInfoParticoes(dados)
-        self.attInfoParticoesDir(dados)
-        if self.first == True:
-            self.attTabelaDiretorios(dados.diretorios)
-            self.first = False
+        #self.attGraficoMemoria(dados)
+        #self.attTabelaMemoria(dados)
+        #self.attInfoSO(dados)
+        #self.attInfoProcesso(dados)
+        #self.attInfoCPU(dados)
+        #self.attInfoHardware(dados)
+        #self.attInfoParticoes(dados)
+        #self.attInfoParticoesDir(dados)
+        self.attProcessosAtivos(dados)
+        #if self.first == True:
+        #    self.attTabelaDiretorios(dados.diretorios)
+        #    self.first = False
 
     # Atualiza a tabela de dados da memoria usando Treeview
     def attTabelaMemoria(self, dados):
@@ -391,6 +428,29 @@ class DashboardApp:
 
 
             self.attTabelaDiretorios(diretorios_filhos)
+
+        table.bind('<<TreeviewSelect>>', item_selected)
+
+    def attProcessosAtivos(self, dados):
+        for widget in self.frame9_1.winfo_children():
+            widget.destroy()
+
+        table = ttk.Treeview(self.frame9_1, columns=(1, 2, 3, 4, 5, 6), show="headings", height=10)
+        table.pack()
+        table.heading(1, text="USER")
+        table.heading(2, text="PID")
+        table.heading(3, text="CPU (%)")
+        table.heading(4, text="MEM (%)")
+        table.heading(5, text="START")
+        table.heading(6, text="COMMAND")
+        for entry in dados.processosAtivos:
+            table.insert('', tk.END, values=[entry['USER'], entry['PID'], entry['%CPU'], entry['%MEM'],
+                                             entry['START'], entry['COMMAND']])
+        def item_selected(event):
+            item = table.selection()[0]
+            # Obtém os valores da linha clicada
+            values = table.item(item, 'values')
+            print(values[1])
 
         table.bind('<<TreeviewSelect>>', item_selected)
 
