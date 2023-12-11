@@ -1,0 +1,11 @@
+comando: ps aux
+
+USER         PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
+root           1  0.0  0.1 168060  3712 ?        Ss   17:27   0:05 /lib/systemd/
+
+comando: lsof -p PID
+COMMAND PID USER   FD      TYPE DEVICE SIZE/OFF NODE NAME
+rcu_gp    3 root  cwd   unknown                      /proc/3/cwd (readlink: Permission denied)
+rcu_gp    3 root  rtd   unknown                      /proc/3/root (readlink: Permission denied)
+rcu_gp    3 root  txt   unknown                      /proc/3/exe (readlink: Permission denied)
+rcu_gp    3 root NOFD                                /proc/3/fd (opendir: Permission denied)
