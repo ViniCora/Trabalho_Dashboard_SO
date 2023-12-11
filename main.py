@@ -29,24 +29,24 @@ class DashboardController:
         thread9 = threading.Thread(target=self.dados.buscaProcessosAtivos)
         #self.dados.buscaDiretoriosRoot()
 
-        #thread1.start()
-        #thread2.start()
-        #thread3.start()
-        #thread4.start()
-        #thread5.start()
-        #thread6.start()
-        #thread7.start()
-        #thread8.start()
-        #thread9.start()
-        #thread1.join()
-        #thread2.join()
-        #thread3.join()
-        #thread4.join()
-        #thread5.join()
-        #thread6.join()
-        #thread7.join()
-        #thread8.join()
-        #thread9.join()
+        thread1.start()
+        thread2.start()
+        thread3.start()
+        thread4.start()
+        thread5.start()
+        thread6.start()
+        thread7.start()
+        thread8.start()
+        thread9.start()
+        thread1.join()
+        thread2.join()
+        thread3.join()
+        thread4.join()
+        thread5.join()
+        thread6.join()
+        thread7.join()
+        thread8.join()
+        thread9.join()
         #Depois de buscar as informações o dashboard é atualizado com os dados
         self.dashApp.attInformacoes(self.dados)
         self.dashboard.after(5000, self.buscarDados)
@@ -255,18 +255,18 @@ class DashboardApp:
 
     #Função que atualiza todas as abas de informações
     def attInformacoes(self, dados):
-        #self.attGraficoMemoria(dados)
-        #self.attTabelaMemoria(dados)
-        #self.attInfoSO(dados)
-        #self.attInfoProcesso(dados)
-        #self.attInfoCPU(dados)
-        #self.attInfoHardware(dados)
-        #self.attInfoParticoes(dados)
-        #self.attInfoParticoesDir(dados)
+        self.attGraficoMemoria(dados)
+        self.attTabelaMemoria(dados)
+        self.attInfoSO(dados)
+        self.attInfoProcesso(dados)
+        self.attInfoCPU(dados)
+        self.attInfoHardware(dados)
+        self.attInfoParticoes(dados)
+        self.attInfoParticoesDir(dados)
         self.attProcessosAtivos(dados)
-        #if self.first == True:
-        #    self.attTabelaDiretorios(dados.diretorios)
-        #    self.first = False
+        if self.first == True:
+            self.attTabelaDiretorios(dados.diretorios)
+            self.first = False
 
     # Atualiza a tabela de dados da memoria usando Treeview
     def attTabelaMemoria(self, dados):
@@ -396,7 +396,7 @@ class DashboardApp:
         return parseado
 
     def buscaInfoPorPID(self, PID):
-        linhas = subprocess.run(["lsof", '-p', PID], capture_output=True, text=True)
+        linhas = subprocess.run(["lsof", '-p', PID], capture_output=True, text=True).stdout
         return linhas
 
     def botao_voltar(self):
@@ -453,12 +453,10 @@ class DashboardApp:
         table.heading(4, text="MEM (%)")
         table.heading(5, text="START")
         table.heading(6, text="COMMAND")
-        #for entry in dados.processosAtivos:
-        #    table.insert('', tk.END, values=[entry['USER'], entry['PID'], entry['%CPU'], entry['%MEM'],
-        #                                    entry['START'], entry['COMMAND']])
+        for entry in dados.processosAtivos:
+            table.insert('', tk.END, values=[entry['USER'], entry['PID'], entry['%CPU'], entry['%MEM'],
+                                            entry['START'], entry['COMMAND']])
 
-        table.insert('', tk.END, values=["root", 5, 0.0, 0.1,
-                                            "17:27", '/lib/systemd/'])
         def item_selected(event):
             item = table.selection()[0]
             # Obtém os valores da linha clicada
@@ -471,7 +469,7 @@ class DashboardApp:
             frame_info.pack(padx=10, pady=10)
             linhas = self.buscaInfoPorPID(PID)
             lista_de_linhas = linhas.split("\n")
-            labelEXP = ttk.Label(frame_info, text="Informações sobre o processo de PID [" + PID + "]:")
+            #labelEXP = ttk.Label(frame_info, text="Informações sobre o processo de PID [" + PID + "]:")
             i = 1
             # Insere uma linha vazia para identação
             frame_info.insert(0, '')
@@ -479,7 +477,7 @@ class DashboardApp:
             for linha in lista_de_linhas:
                 frame_info.insert(i, linha)
                 i += 1
-            labelEXP.grid()
+            #labelEXP.grid()
 
         table.bind('<<TreeviewSelect>>', item_selected)
 
