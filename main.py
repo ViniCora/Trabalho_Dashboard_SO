@@ -28,22 +28,22 @@ class DashboardController:
         thread8 = threading.Thread(target=self.dados.buscaInfoParticoesDir)
         self.dados.buscaDiretoriosRoot()
 
-        #thread1.start()
-        #thread2.start()
-        #thread3.start()
-        #thread4.start()
-        #thread5.start()
-        #thread6.start()
-        #thread7.start()
-        #thread8.start()
-        #thread1.join()
-        #thread2.join()
-        #thread3.join()
-        #thread4.join()
-        #thread5.join()
-        #thread6.join()
-        #thread7.join()
-        #thread8.join()
+        thread1.start()
+        thread2.start()
+        thread3.start()
+        thread4.start()
+        thread5.start()
+        thread6.start()
+        thread7.start()
+        thread8.start()
+        thread1.join()
+        thread2.join()
+        thread3.join()
+        thread4.join()
+        thread5.join()
+        thread6.join()
+        thread7.join()
+        thread8.join()
         #Depois de buscar as informações o dashboard é atualizado com os dados
         self.dashApp.attInformacoes(self.dados)
         self.dashboard.after(5000, self.buscarDados)
@@ -213,14 +213,14 @@ class DashboardApp:
 
     #Função que atualiza todas as abas de informações
     def attInformacoes(self, dados):
-        # self.attGraficoMemoria(dados)
+        self.attGraficoMemoria(dados)
         self.attTabelaMemoria(dados)
-        # self.attInfoSO(dados)
-        # self.attInfoProcesso(dados)
-        # self.attInfoCPU(dados)
-        # self.attInfoHardware(dados)
-        # self.attInfoParticoes(dados)
-        # self.attInfoParticoesDir(dados)
+        self.attInfoSO(dados)
+        self.attInfoProcesso(dados)
+        self.attInfoCPU(dados)
+        self.attInfoHardware(dados)
+        self.attInfoParticoes(dados)
+        self.attInfoParticoesDir(dados)
         if self.first == True:
             self.attTabelaDiretorios(dados.diretorios)
             self.first = False
@@ -348,17 +348,17 @@ class DashboardApp:
         labelEXP.grid()
 
     def buscaDiretorioFilhos(self, caminho):
-        linhas = subprocess.run(["ls", '-lh', '/'], capture_output=True, text=True)
+        linhas = subprocess.run(["ls", '-lh', caminho], capture_output=True, text=True)
         parseado = self.parse_file_entries(linhas.stdout)
         return parseado
 
     def botao_voltar(self):
         last_caminho = self.last_caminhos[-1]
-        if last_caminho == '/':
-            return
         diretorios = self.buscaDiretorioFilhos(self.last_caminhos[-1])
-        self.last_caminhos.pop()
         self.attTabelaDiretorios(diretorios)
+        self.caminho = last_caminho
+        if last_caminho != '/':
+            self.last_caminhos.pop()
 
     def attTabelaDiretorios(self, diretorios):
         for widget in self.frame7_1.winfo_children():
@@ -389,9 +389,32 @@ class DashboardApp:
 
             diretorios_filhos = self.buscaDiretorioFilhos(self.caminho)
 
+
             self.attTabelaDiretorios(diretorios_filhos)
 
         table.bind('<<TreeviewSelect>>', item_selected)
+
+    def parse_file_entries(self, data):
+        entries = []
+        lines = data.strip().split('\n')
+        primeira_linha = True
+        for line in lines:
+            if primeira_linha == True:
+                primeira_linha = False
+                continue
+            parts = line.split()
+            entry = {
+                'permissions': parts[0],
+                'links': int(parts[1]),
+                'owner': parts[2],
+                'group': parts[3],
+                'size': parts[4],
+                'modified_date': ' '.join(parts[5:8]),
+                'name': parts[8]
+            }
+            entries.append(entry)
+
+        return entries
 
 if __name__ == "__main__":
     dash = DashboardController()
