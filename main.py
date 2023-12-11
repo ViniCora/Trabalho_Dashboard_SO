@@ -385,7 +385,8 @@ class DashboardApp:
         # Insere uma linha vazia para identação
         self.frame8.insert(0, '')
         # Adiciona as linhas de informações
-        for linha in dados.infoParticoesDir:
+        lista_de_linhas = dados.infoParticoesDir.split("\n")
+        for linha in lista_de_linhas:
             self.frame8.insert(i, linha)
             i += 1
         labelEXP.grid()
