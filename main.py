@@ -27,7 +27,7 @@ class DashboardController:
         thread7 = threading.Thread(target=self.dados.buscaQuantidadeCPU)
         thread8 = threading.Thread(target=self.dados.buscaInfoParticoesDir)
         thread9 = threading.Thread(target=self.dados.buscaProcessosAtivos)
-        #self.dados.buscaDiretoriosRoot()
+        self.dados.buscaDiretoriosRoot()
 
         thread1.start()
         thread2.start()
