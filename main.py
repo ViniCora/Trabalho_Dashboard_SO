@@ -26,6 +26,7 @@ class DashboardController:
         thread6 = threading.Thread(target=self.dados.buscaInformacoesCPU)
         thread7 = threading.Thread(target=self.dados.buscaQuantidadeCPU)
         thread8 = threading.Thread(target=self.dados.buscaInfoParticoesDir)
+        thread9 = threading.Thread(target=self.dados.buscaProcessosAtivos)
         #self.dados.buscaDiretoriosRoot()
 
         #thread1.start()
@@ -36,6 +37,7 @@ class DashboardController:
         #thread6.start()
         #thread7.start()
         #thread8.start()
+        #thread9.start()
         #thread1.join()
         #thread2.join()
         #thread3.join()
@@ -44,6 +46,7 @@ class DashboardController:
         #thread6.join()
         #thread7.join()
         #thread8.join()
+        #thread9.join()
         #Depois de buscar as informações o dashboard é atualizado com os dados
         self.dashApp.attInformacoes(self.dados)
         self.dashboard.after(5000, self.buscarDados)
@@ -139,8 +142,11 @@ class BuscaDados:
     def parse_file_entries_processo(self, dados):
         entries = []
         lines = dados.strip().split('\n')
-
+        primeira_linha = True
         for line in lines:
+            if primeira_linha == True:
+                primeira_linha = False
+                continue
             parts = line.split()
             if len(parts) >= 11:
                 entry = {
@@ -389,6 +395,10 @@ class DashboardApp:
         parseado = self.parse_file_entries(linhas.stdout)
         return parseado
 
+    def buscaInfoPorPID(self, PID):
+        linhas = subprocess.run(["lsof", '-p', PID], capture_output=True, text=True)
+        return linhas
+
     def botao_voltar(self):
         last_caminho = self.last_caminhos[-1]
         diretorios = self.buscaDiretorioFilhos(self.last_caminhos[-1])
@@ -443,14 +453,33 @@ class DashboardApp:
         table.heading(4, text="MEM (%)")
         table.heading(5, text="START")
         table.heading(6, text="COMMAND")
-        for entry in dados.processosAtivos:
-            table.insert('', tk.END, values=[entry['USER'], entry['PID'], entry['%CPU'], entry['%MEM'],
-                                             entry['START'], entry['COMMAND']])
+        #for entry in dados.processosAtivos:
+        #    table.insert('', tk.END, values=[entry['USER'], entry['PID'], entry['%CPU'], entry['%MEM'],
+        #                                    entry['START'], entry['COMMAND']])
+
+        table.insert('', tk.END, values=["root", 5, 0.0, 0.1,
+                                            "17:27", '/lib/systemd/'])
         def item_selected(event):
             item = table.selection()[0]
             # Obtém os valores da linha clicada
             values = table.item(item, 'values')
-            print(values[1])
+            PID = values[1]
+            dash = tk.Tk()
+            dash.title("Processo - PID: " + PID)
+            dash.geometry("960x540")
+            frame_info = tk.Listbox(dash, width=960, height=530, bg='#eff5f6')
+            frame_info.pack(padx=10, pady=10)
+            linhas = self.buscaInfoPorPID(PID)
+            lista_de_linhas = linhas.split("\n")
+            labelEXP = ttk.Label(frame_info, text="Informações sobre o processo de PID [" + PID + "]:")
+            i = 1
+            # Insere uma linha vazia para identação
+            frame_info.insert(0, '')
+            # Adiciona as linhas de informações
+            for linha in lista_de_linhas:
+                frame_info.insert(i, linha)
+                i += 1
+            labelEXP.grid()
 
         table.bind('<<TreeviewSelect>>', item_selected)
 
